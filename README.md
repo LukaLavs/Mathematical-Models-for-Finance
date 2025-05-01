@@ -1,12 +1,12 @@
 # Financial Models for Financial Analysis
 
-This repository contains a collection of **quantitative finance models** aimed at helping you analyze, optimize, and forecast financial data. The current models include:
+This repository contains a collection of **quantitative finance models**. This project is meant as a study of the models and their applications in practice. Perhaps not all the models are coded optimally or correctly. The current models include:
 
 - **Markowitz Portfolio Optimization**
 - **Binomial Option Pricing Model (CRR, Jarrow-Rudd, Tian)**
 - **Black-Scholes Option Pricing Model**
 
-These models are implemented in Python, and they are designed to be easy to use and adaptable for various financial applications.
+These models are implemented in Python.
 
 ---
 
