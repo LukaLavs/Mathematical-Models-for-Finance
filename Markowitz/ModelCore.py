@@ -4,7 +4,7 @@ import numpy as np
 import cvxpy as cp
 
 
-def model_2_13(m, S, deltas):
+def model_2_13(S, m, delta):
     """ max return - delta*(standard deviation)
     subject to: use all capital and no sort selling"""
     #Note: problem is in conic form described under model (2.13)
@@ -18,10 +18,7 @@ def model_2_13(m, S, deltas):
     x = cp.Variable(N)
     s = cp.Variable()
 
-    columns = ["delta", "obj", "return", "risk"] + [f"weight_{i}" for i in range(N)]
-    df_result = pd.DataFrame(columns=columns)
-
-    for delta_value in deltas:
+    for delta_value in [delta]:
         delta = cp.Parameter(nonneg=True)
         delta.value = delta_value
 
@@ -39,32 +36,8 @@ def model_2_13(m, S, deltas):
         problem.solve()
 
         portfolio_return = m.T @ x.value
-        portfolio_risk = np.sqrt(s.value)
+        portfolio_risk = np.sqrt(x.value @ S @ x.value)
         portfolio_weights = x.value
 
-        row = pd.Series([delta_value, problem.value, portfolio_return, portfolio_risk] + list(portfolio_weights),
-                        index=columns)
-        df_result = pd.concat([df_result, row.to_frame().T], ignore_index=True)
-
-    return df_result
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    
-#m, S = calculate_distribution_parameters()
-#print(m)
-#print(S)
+    return portfolio_weights, portfolio_return, portfolio_risk
 
