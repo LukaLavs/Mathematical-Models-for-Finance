@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
 
-def from_log_to_linear(m, S, df_weekly_prices):
+def from_log_to_linear(m, S, df_weekly_prices, horizon, tau):
+    # tau tells how spaced are the data 7 for weekly, 1 for daily, ...
     # Project the distribution of the weekly logarithmic returns to the one year investment horizon
-    # Using formula parameter_h = h/tau * parameter_tau
-    m_log = 52 * m
-    S_log = 52 * S
+    # Using formula parameter_h = h/tau * parameter_tau, 5/7 because out of every 7 days 5 are trading days
+    m_log = np.floor(5/7 * horizon/tau) * m
+    S_log = np.floor(5/7 * horizon/tau) * S
 
     # Derive the distribution of security prices at the investment horizon
     # Using formula P_h = p0 * exp(R^log)
@@ -20,7 +21,7 @@ def from_log_to_linear(m, S, df_weekly_prices):
     return m, S
 
 
-def shrinkage_metod(df_weekly_log_returns, df_weekly_prices):
+def shrinkage_metod(df_weekly_log_returns, df_weekly_prices, horizon, tau=1):
     
     # Fit the weekly logarithmic returns to a multivariate normal distribution
     return_array = df_weekly_log_returns.to_numpy()
@@ -67,12 +68,12 @@ def shrinkage_metod(df_weekly_log_returns, df_weekly_prices):
     m_shrunk = m_shrunk[:, 0]
     
     # Convert
-    m_shrunk, S_shrunk = from_log_to_linear(m_shrunk, S_shrunk, df_weekly_prices)
+    m_shrunk, S_shrunk = from_log_to_linear(m_shrunk, S_shrunk, df_weekly_prices, horizon, tau)
     
     return m_shrunk, S_shrunk
 
 
-def james_stein_estimator(df_weekly_log_returns, df_weekly_prices):
+def james_stein_estimator(df_weekly_log_returns, df_weekly_prices, horizon, tau=1):
     # Fit the weekly logarithmic returns to a multivariate normal distribution
     return_array = df_weekly_log_returns.to_numpy()
     m_weekly_log = np.mean(return_array, axis=0)
@@ -95,6 +96,6 @@ def james_stein_estimator(df_weekly_log_returns, df_weekly_prices):
     # This was for log returns, now we convert to linear returns
     
     # Convert, note: no shrinkage transformations on S were performed
-    m_shrunk, S_shrunk = from_log_to_linear(m_log, S, df_weekly_prices)
+    m_shrunk, S_shrunk = from_log_to_linear(m_log, S, df_weekly_prices, horizon, tau)
     
     return m_shrunk, S_shrunk
